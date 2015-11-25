@@ -10,10 +10,10 @@ import (
 	"strconv"
 )
 
+//respHeader is a type for pretty printing response headers
 type respHeader http.Header
 
 func (h respHeader) String() string {
-
 	// Sort headers; get max header string length
 	sortedHeaderKeys := make([]string, 0, len(h))
 	max := 0
@@ -32,13 +32,13 @@ func (h respHeader) String() string {
 	buf := &bytes.Buffer{}
 	for _, headerKey := range sortedHeaderKeys {
 		fmt.Fprintf(buf, fstrOuter, headerKey)
-		for i := range h[headerKey] {
+		headerValues := h[headerKey]
+		for i := range headerValues {
 			if i > 0 {
 				fmt.Fprintf(buf, fstrInner, "")
 			}
-			fmt.Fprintf(buf, "%s\n", h[headerKey][i])
+			fmt.Fprintf(buf, "%s\n", headerValues[i])
 		}
-
 	}
 	return buf.String()
 }
