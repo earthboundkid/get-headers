@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"sort"
-	"strconv"
 )
 
 //respHeader is a type for pretty printing response headers
@@ -25,17 +24,13 @@ func (h respHeader) String() string {
 	}
 	sort.Strings(sortedHeaderKeys)
 
-	// Make format strings as long as longest header
-	fstrOuter := " %-" + strconv.Itoa(max+1) + "s"
-	fstrInner := "%" + strconv.Itoa(max+2) + "s"
-
 	buf := &bytes.Buffer{}
 	for _, headerKey := range sortedHeaderKeys {
-		fmt.Fprintf(buf, fstrOuter, headerKey)
+		fmt.Fprintf(buf, " %-*s", max+1, headerKey)
 		headerValues := h[headerKey]
 		for i := range headerValues {
 			if i > 0 {
-				fmt.Fprintf(buf, fstrInner, "")
+				fmt.Fprintf(buf, "%*s", max+2, "")
 			}
 			fmt.Fprintf(buf, "%s\n", headerValues[i])
 		}
