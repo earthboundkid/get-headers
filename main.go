@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"sort"
+	"text/tabwriter"
 )
 
 //respHeader is a type for pretty printing response headers
@@ -15,26 +16,27 @@ type respHeader http.Header
 func (h respHeader) String() string {
 	// Sort headers; get max header string length
 	sortedHeaderKeys := make([]string, 0, len(h))
-	max := 0
 	for header := range h {
 		sortedHeaderKeys = append(sortedHeaderKeys, header)
-		if len(header) > max {
-			max = len(header)
-		}
 	}
 	sort.Strings(sortedHeaderKeys)
 
-	buf := &bytes.Buffer{}
+	// Use a tabwriter to pretty print the output to a buffer
+	var (
+		buf bytes.Buffer
+		tw  = tabwriter.NewWriter(&buf, 0, 0, 2, ' ', 0)
+	)
 	for _, headerKey := range sortedHeaderKeys {
-		fmt.Fprintf(buf, " %-*s", max+1, headerKey)
-		headerValues := h[headerKey]
-		for i := range headerValues {
+		for i, headerValue := range h[headerKey] {
+			// Flag repeated values with an asterisk
+			asterisk := ""
 			if i > 0 {
-				fmt.Fprintf(buf, "%*s", max+2, "")
+				asterisk = " *"
 			}
-			fmt.Fprintf(buf, "%s\n", headerValues[i])
+			fmt.Fprintf(tw, "%s%s\t%s\t\n", headerKey, asterisk, headerValue)
 		}
 	}
+	tw.Flush()
 	return buf.String()
 }
 
