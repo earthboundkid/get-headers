@@ -48,6 +48,8 @@ func main() {
 			os.Exit(1)
 		}
 		resp.Body.Close()
-		fmt.Print(respHeader(resp.Header))
+		fmt.Println("GET", url)
+		fmt.Println(resp.Proto, resp.Status, "\n")
+		fmt.Println(respHeader(resp.Header))
 	}
 }
