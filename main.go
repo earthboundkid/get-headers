@@ -12,11 +12,11 @@ import (
 )
 
 // Sentinal error to let us know if we're ignoring a redirect
-var redirectError = errors.New("redirected")
+var errRedirect = errors.New("redirected")
 
 // Don't follow redirects
 func checkRedirect(req *http.Request, via []*http.Request) error {
-	return redirectError
+	return errRedirect
 }
 
 func main() {
@@ -26,10 +26,10 @@ func main() {
 		}
 		resp, err := client.Get(url)
 
-		// Ignore the error if it's just our redirectError
+		// Ignore the error if it's just our errRedirect
 		switch urlErr, ok := err.(*netURL.Error); {
 		case err == nil:
-		case ok && urlErr.Err == redirectError:
+		case ok && urlErr.Err == errRedirect:
 		default:
 			fmt.Fprintf(os.Stderr, "%s: %v\n", os.Args[0], err)
 			os.Exit(1)
