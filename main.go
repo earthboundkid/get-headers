@@ -3,6 +3,7 @@ package main
 
 import (
 	"errors"
+	"flag"
 	"fmt"
 	"net/http"
 	netURL "net/url"
@@ -10,6 +11,26 @@ import (
 
 	"github.com/carlmjohnson/get-headers/prettyprint"
 )
+
+const usage = `Usage of get-headers:
+
+	get-headers <url>...
+		Gets the URLs and prints their headers alphabetically.
+		Repeated headers are printed with an asterisk.
+	get-headers (-h|--help)
+		Print this help message.
+`
+
+func init() {
+	flag.Usage = func() {
+		fmt.Fprint(os.Stderr, usage)
+	}
+	flag.Parse()
+	if len(flag.Args()) < 1 {
+		flag.Usage()
+		os.Exit(2)
+	}
+}
 
 // Sentinal error to let us know if we're ignoring a redirect
 var errRedirect = errors.New("redirected")
@@ -20,7 +41,7 @@ func checkRedirect(req *http.Request, via []*http.Request) error {
 }
 
 func main() {
-	for _, url := range os.Args[1:] {
+	for _, url := range flag.Args() {
 		client := http.Client{
 			CheckRedirect: checkRedirect,
 		}
