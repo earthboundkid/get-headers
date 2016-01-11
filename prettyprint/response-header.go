@@ -1,4 +1,4 @@
-// prettyprint contains a wrapper type for pretty printing request headers
+// Package prettyprint contains a wrapper type for pretty printing request headers
 package prettyprint
 
 import (
@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 )
 
-//ResponseHeader is a type for pretty printing net/http response headers
+// ResponseHeader is a type for pretty printing net/http response headers
 type ResponseHeader http.Header
 
 // String formats headers by outputting headers and values in equal columns, sorted alphabetically by header. Repeated headers are marked with an asterisk.
