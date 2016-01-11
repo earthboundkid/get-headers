@@ -71,7 +71,14 @@ func main() {
 		var n int64
 		start := time.Now()
 
-		resp, err := client.Get(url)
+		req, err := http.NewRequest("GET", url, nil)
+		die(err)
+		if *gzip {
+			req.Header = map[string][]string{
+				"Accept-Encoding": {"gzip, deflate"},
+			}
+		}
+		resp, err := client.Do(req)
 
 		// Ignore the error if it's just our errRedirect
 		switch urlErr, ok := err.(*netURL.Error); {
