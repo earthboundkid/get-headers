@@ -10,6 +10,7 @@ import (
 	"net/http"
 	netURL "net/url"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/carlmjohnson/get-headers/prettyprint"
@@ -39,8 +40,6 @@ func main() {
 		Transport:     transport,
 	}
 	for _, url := range flag.Args() {
-		var n int64
-		start := time.Now()
 
 		req, err := http.NewRequest("GET", url, nil)
 		die(err)
@@ -49,23 +48,36 @@ func main() {
 				"Accept-Encoding": {"gzip, deflate"},
 			}
 		}
-		resp, err := client.Do(req)
 
+		start := time.Now()
+		resp, err := client.Do(req)
+		duration := time.Since(start)
+
+		var (
+			n  int64
+			wg sync.WaitGroup
+		)
 		// Ignore the error if it's just our errRedirect
 		switch urlErr, ok := err.(*netURL.Error); {
 		case err == nil:
-			// Copying to /dev/null just to make sure this is real
-			n, err = io.Copy(ioutil.Discard, resp.Body)
-			die(err)
+			wg.Add(1)
+			go func() {
+				// Copying to /dev/null just to make sure this is real
+				n, err = io.Copy(ioutil.Discard, resp.Body)
+				duration = time.Since(start)
+				die(err)
+				wg.Done()
+			}()
 		case ok && urlErr.Err == errRedirect:
 		default:
 			die(err)
 		}
-		duration := time.Since(start)
-		die(resp.Body.Close())
 
 		fmt.Println("GET", url)
 		fmt.Println(resp.Proto, resp.Status, "\n")
+		fmt.Println(prettyprint.ResponseHeader(resp.Header))
+		wg.Wait()
+		die(resp.Body.Close())
 		fmt.Println("Time           ", humanizeDuration(duration))
 		if n != 0 {
 			fmt.Println("Content length ", humanizeByteSize(n))
@@ -73,6 +85,5 @@ func main() {
 			fmt.Printf("Speed           %s/s\n", humanizeByteSize(bps))
 		}
 		fmt.Println()
-		fmt.Println(prettyprint.ResponseHeader(resp.Header))
 	}
 }
