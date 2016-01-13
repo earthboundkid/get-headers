@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -32,6 +33,10 @@ func (h ResponseHeader) String() string {
 			asterisk := ""
 			if i > 0 {
 				asterisk = " *"
+			}
+			// Prevent long lines by breaking at "; "
+			if len(headerValue) > 40 {
+				headerValue = strings.Replace(headerValue, "; ", ";\n...\t", -1)
 			}
 			fmt.Fprintf(tw, "%s%s\t%s\t\n", headerKey, asterisk, headerValue)
 		}
