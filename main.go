@@ -17,6 +17,12 @@ import (
 	"github.com/carlmjohnson/get-headers/prettyprint"
 )
 
+// Flag variables (set in flags.go on init)
+var (
+	gzip       bool
+	ignoreBody bool
+)
+
 // Sentinal error to let us know if we're ignoring a redirect
 var errRedirect = errors.New("redirected")
 
@@ -34,7 +40,7 @@ func die(err error) {
 
 func main() {
 	transport := &http.Transport{
-		DisableCompression: *gzip,
+		DisableCompression: gzip,
 	}
 	client := http.Client{
 		CheckRedirect: checkRedirect,
@@ -44,7 +50,7 @@ func main() {
 
 		req, err := http.NewRequest("GET", url, nil)
 		die(err)
-		if *gzip {
+		if gzip {
 			req.Header = map[string][]string{
 				"Accept-Encoding": {"gzip, deflate"},
 			}
@@ -61,7 +67,7 @@ func main() {
 		// Ignore the error if it's just our errRedirect
 		switch urlErr, ok := err.(*netURL.Error); {
 		case err == nil:
-			if *ignoreBody {
+			if ignoreBody {
 				break
 			}
 

@@ -14,14 +14,11 @@ get-headers [opts] <url>...
 
 `
 
-var (
-	gzip       = flag.Bool("gzip", false, "Enable GZIP compression")
-	ignoreBody = flag.Bool("ignore-body", false, "Ignore body of request; close connection after gettings the headers")
-)
-
 func init() {
-	flag.BoolVar(gzip, "g", false, "Shortcut for -gzip")
-	flag.BoolVar(ignoreBody, "i", false, "Shortcut for -ignore-body")
+	flag.BoolVar(&gzip, "gzip", false, "Enable GZIP compression")
+	flag.BoolVar(&gzip, "g", false, "Shortcut for -gzip")
+	flag.BoolVar(&ignoreBody, "ignore-body", false, "Ignore body of request; close connection after gettings the headers")
+	flag.BoolVar(&ignoreBody, "i", false, "Shortcut for -ignore-body")
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, usage)
 		flag.PrintDefaults()
