@@ -11,6 +11,7 @@ import (
 	netURL "net/url"
 	"os"
 	"sync"
+	"text/tabwriter"
 	"time"
 
 	"github.com/carlmjohnson/get-headers/prettyprint"
@@ -82,12 +83,14 @@ func main() {
 		fmt.Println(prettyprint.ResponseHeader(resp.Header))
 		wg.Wait()
 		die(resp.Body.Close())
-		fmt.Println("Time           ", humanizeDuration(duration))
+
+		tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+		fmt.Fprintf(tw, "Time\t%s\n", humanizeDuration(duration))
 		if n != 0 {
-			fmt.Println("Content length ", humanizeByteSize(n))
+			fmt.Fprintf(tw, "Content length\t%s\n", humanizeByteSize(n))
 			bps := int64(float64(n) / duration.Seconds())
-			fmt.Printf("Speed           %s/s\n", humanizeByteSize(bps))
+			fmt.Fprintf(tw, "Speed\t%s/s\n", humanizeByteSize(bps))
 		}
-		fmt.Println()
+		tw.Flush()
 	}
 }
