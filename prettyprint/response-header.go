@@ -35,14 +35,11 @@ func (h ResponseHeader) String() string {
 				asterisk = " *"
 			}
 
-			fmtStr := "%s%s\t%s\t\n"
-			// Prevent long lines by omitting closing tab and splitting lines
+			// Prevent long lines by breaking at "; "
 			if len(headerValue) > 50 {
-				fmtStr = "%s%s\t%s\n"
 				headerValue = strings.Replace(headerValue, "; ", ";\n...\t", -1)
-
 			}
-			fmt.Fprintf(tw, fmtStr, headerKey, asterisk, headerValue)
+			fmt.Fprintf(tw, "%s%s\t%s\n", headerKey, asterisk, headerValue)
 		}
 	}
 	tw.Flush()
