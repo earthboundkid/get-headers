@@ -60,6 +60,10 @@ func main() {
 		// Ignore the error if it's just our errRedirect
 		switch urlErr, ok := err.(*netURL.Error); {
 		case err == nil:
+			if *ignoreBody {
+				break
+			}
+
 			wg.Add(1)
 			go func() {
 				// Copying to /dev/null just to make sure this is real
