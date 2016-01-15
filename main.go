@@ -39,12 +39,11 @@ func die(err error) {
 }
 
 func main() {
-	transport := &http.Transport{
-		DisableCompression: gzip,
-	}
 	client := http.Client{
 		CheckRedirect: checkRedirect,
-		Transport:     transport,
+		Transport: &http.Transport{
+			DisableCompression: true,
+		},
 	}
 	for _, url := range flag.Args() {
 
