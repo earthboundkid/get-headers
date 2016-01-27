@@ -4,13 +4,13 @@ Simple tool to show the headers from GET-ing a URL
 The problem this solves is that when you use `curl -I` it does a `HEAD` request, potentially changing the result, and when you do `curl -i` it also dumps the page HTML on you. This does a `GET` and returns those results—including any doubled headers. It also (optionally) downloads the body of the page and returns speed and timing information.
 
 ## Installation
-First install [Go](http://golang.org) and set your `GOPATH` environmental variable to the directory you would like the project saved in. Then run `go get github.com/carlmjohnson/get-headers`. The binary will be installed in `$GOPATH/bin`. If you don't want to keep the source, you can instead run `GOPATH=/tmp/srp go get github.com/carlmjohnson/get-headers && cp /tmp/srp/bin/get-headers .` to install the binary to your current working directory.
+First install [Go](http://golang.org) and set your `GOPATH` environmental variable to the directory you would like the project saved in. Then run `go get github.com/carlmjohnson/get-headers`. The binary will be installed in `$GOPATH/bin`. If you don't want to keep the source, you can instead run `GOPATH=/tmp/gh go get github.com/carlmjohnson/get-headers && cp /tmp/gh/bin/get-headers .` to install the binary to your current working directory.
 
 ## Screenshots
 ```bash
 $ get-headers https://www.example.com
 GET https://www.example.com
-HTTP/1.1 200 OK 
+HTTP/1.1 200 OK
 
 Cache-Control      max-age=604800
 Content-Type       text/html
@@ -31,7 +31,7 @@ Speed           12.4 KB/s
 ```bash
 $ get-headers -gzip http://www.example.com
 GET http://www.example.com
-HTTP/1.1 200 OK 
+HTTP/1.1 200 OK
 
 Cache-Control      max-age=604800
 Content-Encoding   gzip
