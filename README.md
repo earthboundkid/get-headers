@@ -1,10 +1,16 @@
-# get-headers [![GoDoc](https://godoc.org/github.com/carlmjohnson/get-headers?status.svg)](https://godoc.org/github.com/carlmjohnson/get-headers)
+# get-headers [![GoDoc](https://godoc.org/github.com/carlmjohnson/get-headers?status.svg)](https://godoc.org/github.com/carlmjohnson/get-headers) [![Go Report Card](https://goreportcard.com/badge/github.com/carlmjohnson/get-headers)](https://goreportcard.com/report/github.com/carlmjohnson/get-headers)
 Simple tool to show the headers from GET-ing a URL
 
 The problem this solves is that when you use `curl -I` it does a `HEAD` request, potentially changing the result, and when you do `curl -i` it also dumps the page HTML on you. This does a `GET` and returns those results—including any doubled headers. It also (optionally) downloads the body of the page and returns speed and timing information.
 
 ## Installation
-First install [Go](http://golang.org) and set your `GOPATH` environmental variable to the directory you would like the project saved in. Then run `go get github.com/carlmjohnson/get-headers`. The binary will be installed in `$GOPATH/bin`. If you don't want to keep the source, you can instead run `GOPATH=/tmp/gh go get github.com/carlmjohnson/get-headers && cp /tmp/gh/bin/get-headers .` to install the binary to your current working directory.
+First install [Go](http://golang.org).
+
+If you just want to install the binary to your current directory and don't care about the source code, run
+
+```bash
+GOBIN=. GOPATH=/tmp/gobuild go get github.com/carlmjohnson/get-headers
+```
 
 ## Screenshots
 ```bash
