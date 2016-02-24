@@ -2,7 +2,11 @@ package prettyprint
 
 import "fmt"
 
-// Size is wrapper for humanizing byte sizes
+// A petabyte is 2^50, so a float64, which holds 2^53 ints, is big
+// enough for whatever purposes.
+
+// Size is wrapper for humanizing byte sizes. Sizes are reported in
+// base-2 equivalents, not base-10, i.e. 1 KB = 1024 bytes.
 type Size float64
 
 func (size Size) String() string {
@@ -11,11 +15,15 @@ func (size Size) String() string {
 		megabyte
 		gigabyte
 		terabyte
+		petabyte
 	)
 
 	format := "%.f"
 
 	switch {
+	case size >= petabyte:
+		format = "%3.1f PB"
+		size /= terabyte
 	case size >= terabyte:
 		format = "%3.1f TB"
 		size /= terabyte
