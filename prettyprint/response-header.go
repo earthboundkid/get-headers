@@ -1,4 +1,3 @@
-// Package prettyprint contains a wrapper type for pretty printing request headers
 package prettyprint
 
 import (

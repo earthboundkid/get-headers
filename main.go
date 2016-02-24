@@ -90,11 +90,11 @@ func main() {
 		die(resp.Body.Close())
 
 		tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintf(tw, "Time\t%s\n", humanizeDuration(duration))
+		fmt.Fprintf(tw, "Time\t%s\n", prettyprint.Duration(duration))
 		if n != 0 {
-			fmt.Fprintf(tw, "Content length\t%s\n", humanizeByteSize(n))
+			fmt.Fprintf(tw, "Content length\t%s\n", prettyprint.Size(n))
 			bps := int64(float64(n) / duration.Seconds())
-			fmt.Fprintf(tw, "Speed\t%s/s\n", humanizeByteSize(bps))
+			fmt.Fprintf(tw, "Speed\t%s/s\n", prettyprint.Size(bps))
 		}
 		tw.Flush()
 	}
