@@ -3,33 +3,31 @@ package prettyprint
 import "fmt"
 
 // Size is wrapper for humanizing byte sizes
-type Size int64
+type Size float64
 
 func (size Size) String() string {
 	const (
-		_        = iota
-		kilobyte = 1 << (10 * iota)
+		kilobyte = 1 << (10 * (iota + 1))
 		megabyte
 		gigabyte
 		terabyte
 	)
 
 	format := "%.f"
-	value := float32(size)
 
 	switch {
 	case size >= terabyte:
 		format = "%3.1f TB"
-		value = value / terabyte
+		size /= terabyte
 	case size >= gigabyte:
 		format = "%3.1f GB"
-		value = value / gigabyte
+		size /= gigabyte
 	case size >= megabyte:
 		format = "%3.1f MB"
-		value = value / megabyte
+		size /= megabyte
 	case size >= kilobyte:
 		format = "%3.1f KB"
-		value = value / kilobyte
+		size /= kilobyte
 	}
-	return fmt.Sprintf(format, value)
+	return fmt.Sprintf(format, size)
 }
