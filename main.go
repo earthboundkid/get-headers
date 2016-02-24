@@ -84,7 +84,8 @@ func main() {
 		}
 
 		fmt.Println("GET", url)
-		fmt.Println(resp.Proto, resp.Status, "\n")
+		fmt.Println(resp.Proto, resp.Status)
+		fmt.Println()
 		fmt.Println(prettyprint.ResponseHeader(resp.Header))
 		wg.Wait()
 		die(resp.Body.Close())
