@@ -19,6 +19,7 @@ import (
 
 // Flag variables (set in flags.go on init)
 var (
+	etag       string
 	gzip       bool
 	ignoreBody bool
 )
@@ -49,10 +50,15 @@ func main() {
 
 		req, err := http.NewRequest("GET", url, nil)
 		die(err)
+
+		req.Header = map[string][]string{}
+
 		if gzip {
-			req.Header = map[string][]string{
-				"Accept-Encoding": {"gzip, deflate"},
-			}
+			req.Header["Accept-Encoding"] = []string{"gzip, deflate"}
+		}
+
+		if etag != "" {
+			req.Header["If-None-Match"] = []string{etag}
 		}
 
 		start := time.Now()
