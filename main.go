@@ -100,8 +100,8 @@ func main() {
 		fmt.Fprintf(tw, "Time\t%s\n", prettyprint.Duration(duration))
 		if n != 0 {
 			fmt.Fprintf(tw, "Content length\t%s\n", prettyprint.Size(n))
-			bps := int64(float64(n) / duration.Seconds())
-			fmt.Fprintf(tw, "Speed\t%s/s\n", prettyprint.Size(bps))
+			bps := prettyprint.Size(float64(n) / duration.Seconds())
+			fmt.Fprintf(tw, "Speed\t%s/s\n", bps)
 		}
 		tw.Flush()
 	}
