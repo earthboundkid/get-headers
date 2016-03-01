@@ -51,14 +51,12 @@ func main() {
 		req, err := http.NewRequest("GET", url, nil)
 		die(err)
 
-		req.Header = map[string][]string{}
-
 		if gzip {
-			req.Header["Accept-Encoding"] = []string{"gzip, deflate"}
+			req.Header.Add("Accept-Encoding", "gzip, deflate")
 		}
 
 		if etag != "" {
-			req.Header["If-None-Match"] = []string{etag}
+			req.Header.Add("If-None-Match", etag)
 		}
 
 		start := time.Now()
