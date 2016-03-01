@@ -19,6 +19,7 @@ import (
 
 // Flag variables (set in flags.go on init)
 var (
+	cookie     string
 	etag       string
 	gzip       bool
 	ignoreBody bool
@@ -57,6 +58,10 @@ func main() {
 
 		if etag != "" {
 			req.Header.Add("If-None-Match", etag)
+		}
+
+		if cookie != "" {
+			req.Header.Add("Cookie", cookie)
 		}
 
 		start := time.Now()

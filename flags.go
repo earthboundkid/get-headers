@@ -21,6 +21,9 @@ func init() {
 	flag.BoolVar(&ignoreBody, "ignore-body", false, "Ignore body of request; close connection after gettings the headers")
 	flag.BoolVar(&ignoreBody, "i", false, "Shortcut for -ignore-body")
 	flag.StringVar(&etag, "etag", "", "Set 'If-None-Match' header to etag value")
+	flag.StringVar(&cookie, "cookie",
+		os.Getenv("GET_HEADERS_COOKIE"),
+		"Set cookie header (overrides GET_HEADERS_COOKIE environmental variable)")
 	flag.Usage = func() {
 		fmt.Fprint(os.Stderr, usage)
 		flag.PrintDefaults()
