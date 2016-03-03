@@ -35,7 +35,7 @@ func checkRedirect(req *http.Request, via []*http.Request) error {
 
 func die(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "get-time: %v\n", err)
+		fmt.Fprintf(os.Stderr, "get-headers: %v\n", err)
 		os.Exit(1)
 	}
 }
