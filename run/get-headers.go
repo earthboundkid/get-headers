@@ -1,3 +1,4 @@
+// Package run is the core logic of get-headers
 package run
 
 import (
@@ -24,16 +25,20 @@ func checkRedirect(req *http.Request, via []*http.Request) error {
 	return errRedirect
 }
 
-func Main(cookie, etag string, gzip, ignoreBody bool, args []string) error {
-	client := http.Client{
-		CheckRedirect: checkRedirect,
-		Transport: &http.Transport{
-			DisableCompression: true,
-		},
-	}
-	for narg, url := range args {
+// client for all http requests
+var client = http.Client{
+	CheckRedirect: checkRedirect,
+	Transport: &http.Transport{
+		DisableCompression: true,
+	},
+}
+
+// Main takes a list of urls and request parameters, then fetches the URLs and
+// outputs the headers to stdout
+func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
+	for nurl, url := range urls {
 		// Separate subsequent lookups with newline
-		if narg > 0 {
+		if nurl > 0 {
 			fmt.Println()
 		}
 

@@ -1,3 +1,4 @@
+// Package cli parses command line flags for get-headers and calls run.Main
 package cli
 
 import (
@@ -17,6 +18,7 @@ get-headers [opts] <url>...
 
 `
 
+// Run parses command line options, runs run.Main, and returns an os.Exit code.
 func Run() int {
 	gzip := flag.Bool("gzip", false, "Enable GZIP compression")
 	flag.BoolVar(gzip, "g", false, "Shortcut for -gzip")
@@ -42,7 +44,7 @@ func Run() int {
 		*etag = fmt.Sprintf(`"%s"`, *etag)
 	}
 
-	if err := run.Main(*cookie, *etag, *gzip, *ignoreBody, flag.Args()); err != nil {
+	if err := run.Main(*cookie, *etag, *gzip, *ignoreBody, flag.Args()...); err != nil {
 		fmt.Fprintf(os.Stderr, "get-headers: %v\n", err)
 		return 1
 	}
