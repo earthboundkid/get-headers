@@ -1,9 +1,11 @@
-# get-headers [![GoDoc](https://godoc.org/github.com/carlmjohnson/get-headers?status.svg)](https://godoc.org/github.com/carlmjohnson/get-headers) [![Go Report Card](https://goreportcard.com/badge/github.com/carlmjohnson/get-headers)](https://goreportcard.com/report/github.com/carlmjohnson/get-headers) [ ![Codeship Status for carlmjohnson/get-headers](https://codeship.com/projects/c1f6a8b0-1f7e-0134-4bf7-42de186da15e/status?branch=master)](https://codeship.com/projects/160370)
+# get-headers [![GoDoc](https://godoc.org/github.com/carlmjohnson/get-headers?status.svg)](https://godoc.org/github.com/carlmjohnson/get-headers) [![Go Report Card](https://goreportcard.com/badge/github.com/carlmjohnson/get-headers)](https://goreportcard.com/report/github.com/carlmjohnson/get-headers) [![Codeship Status for carlmjohnson/get-headers](https://codeship.com/projects/c1f6a8b0-1f7e-0134-4bf7-42de186da15e/status?branch=master)](https://codeship.com/projects/160370)
+
 Simple tool to show the headers from GET-ing a URL
 
 The problem this solves is that when you use `curl -I` it does a `HEAD` request, potentially changing the result, and when you do `curl -i` it also dumps the page HTML on you. This does a `GET` and returns those results—including any doubled headers. It also (optionally) downloads the body of the page and returns speed and timing information.
 
 ## Installation
+
 First install [Go](http://golang.org).
 
 If you just want to install the binary to your current directory and don't care about the source code, run
@@ -13,6 +15,7 @@ GOBIN=$(pwd) GOPATH=/tmp/gobuild go get github.com/carlmjohnson/get-headers
 ```
 
 ## Screenshots
+
 ```bash
 $ get-headers https://www.example.com
 GET https://www.example.com
