@@ -2,12 +2,10 @@
 package run
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	netURL "net/url"
 	"os"
 	"text/tabwriter"
 	"time"
@@ -17,12 +15,9 @@ import (
 	"github.com/carlmjohnson/get-headers/prettyprint"
 )
 
-// Sentinal error to let us know if we're ignoring a redirect
-var errRedirect = errors.New("redirected")
-
 // Don't follow redirects
 func checkRedirect(req *http.Request, via []*http.Request) error {
-	return errRedirect
+	return http.ErrUseLastResponse
 }
 
 // client for all http requests
@@ -63,17 +58,16 @@ func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
 		resp, err := client.Do(req)
 		duration := time.Since(start)
 
+		if err != nil {
+			return err
+		}
+
 		var (
 			n  int64
 			eg errgroup.Group
 		)
-		// Ignore the error if it's just our errRedirect
-		switch urlErr, ok := err.(*netURL.Error); {
-		case err == nil:
-			if ignoreBody {
-				break
-			}
 
+		if !ignoreBody {
 			eg.Go(func() error {
 				// Copying to /dev/null just to make sure this is real
 				n, err = io.Copy(ioutil.Discard, resp.Body)
@@ -83,9 +77,6 @@ func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
 				}
 				return nil
 			})
-		case ok && urlErr.Err == errRedirect:
-		default:
-			return err
 		}
 
 		fmt.Println("GET", url)
