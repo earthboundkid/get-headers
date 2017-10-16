@@ -18,7 +18,7 @@ func (size Size) String() string {
 		petabyte
 	)
 
-	format := "%.f"
+	format := "%.f B"
 
 	switch {
 	case size >= petabyte:
