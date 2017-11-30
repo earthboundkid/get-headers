@@ -23,7 +23,7 @@ func (size Size) String() string {
 	switch {
 	case size >= petabyte:
 		format = "%3.1f PB"
-		size /= terabyte
+		size /= petabyte
 	case size >= terabyte:
 		format = "%3.1f TB"
 		size /= terabyte
