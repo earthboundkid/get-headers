@@ -70,10 +70,14 @@ get-headers [opts] <url>...
 
 Options may be set as GET_HEADERS prefixed environment variables.
 
-  -g	Shortcut for -gzip
+  -cookie string
+        Set cookie header
+  -etag value
+        Set 'If-None-Match' header to etag value
+  -g    Shortcut for -gzip
   -gzip
-    	Enable GZIP compression
-  -i	Shortcut for -ignore-body
+        Enable GZIP compression
+  -i    Shortcut for -ignore-body
   -ignore-body
-    	Ignore body of request; close connection after gettings the headers
+        Ignore body of request; close connection after gettings the headers
 ```
