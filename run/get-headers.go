@@ -4,7 +4,6 @@ package run
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"text/tabwriter"
@@ -70,7 +69,7 @@ func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
 		if !ignoreBody {
 			eg.Go(func() error {
 				// Copying to /dev/null just to make sure this is real
-				n, err = io.Copy(ioutil.Discard, resp.Body)
+				n, err = io.Copy(io.Discard, resp.Body)
 				duration = time.Since(start)
 				if err != nil {
 					return err
