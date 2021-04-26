@@ -2,10 +2,12 @@
 package run
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"os/signal"
 	"text/tabwriter"
 	"time"
 
@@ -30,77 +32,84 @@ var client = http.Client{
 // Main takes a list of urls and request parameters, then fetches the URLs and
 // outputs the headers to stdout
 func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
-	for nurl, url := range urls {
+	for i, url := range urls {
 		// Separate subsequent lookups with newline
-		if nurl > 0 {
+		if i > 0 {
 			fmt.Println()
 		}
-
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
+		if err := getHeaders(cookie, etag, gzip, ignoreBody, url); err != nil {
 			return err
 		}
+	}
+	return nil
+}
 
-		if gzip {
-			req.Header.Add("Accept-Encoding", "gzip, deflate")
-		}
+func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
+	defer cancel()
+	eg, ctx := errgroup.WithContext(ctx)
 
-		if etag != "" {
-			req.Header.Add("If-None-Match", etag)
-		}
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return err
+	}
 
-		if cookie != "" {
-			req.Header.Add("Cookie", cookie)
-		}
+	if gzip {
+		req.Header.Add("Accept-Encoding", "gzip, deflate")
+	}
 
-		start := time.Now()
-		resp, err := client.Do(req)
-		duration := time.Since(start)
+	if etag != "" {
+		req.Header.Add("If-None-Match", etag)
+	}
 
-		if err != nil {
-			return err
-		}
+	if cookie != "" {
+		req.Header.Add("Cookie", cookie)
+	}
 
-		var (
-			n  int64
-			eg errgroup.Group
-		)
+	start := time.Now()
+	resp, err := client.Do(req)
+	duration := time.Since(start)
 
-		if !ignoreBody {
-			eg.Go(func() error {
-				// Copying to /dev/null just to make sure this is real
-				n, err = io.Copy(io.Discard, resp.Body)
-				duration = time.Since(start)
-				if err != nil {
-					return err
-				}
-				return nil
-			})
-		}
+	if err != nil {
+		return err
+	}
 
-		fmt.Println("GET", url)
-		fmt.Println(resp.Proto, resp.Status)
-		fmt.Println()
-		fmt.Println(prettyprint.ResponseHeader(resp.Header))
+	var n int64
 
-		if err := eg.Wait(); err != nil {
-			return err
-		}
+	if !ignoreBody {
+		eg.Go(func() error {
+			// Copying to /dev/null just to make sure this is real
+			n, err = io.Copy(io.Discard, resp.Body)
+			duration = time.Since(start)
+			if err != nil {
+				return err
+			}
+			return nil
+		})
+	}
 
-		if err := resp.Body.Close(); err != nil {
-			return err
-		}
+	fmt.Println("GET", url)
+	fmt.Println(resp.Proto, resp.Status)
+	fmt.Println()
+	fmt.Println(prettyprint.ResponseHeader(resp.Header))
 
-		tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
-		fmt.Fprintf(tw, "Time\t%s\n", prettyprint.Duration(duration))
-		if n != 0 {
-			fmt.Fprintf(tw, "Content length\t%s\n", prettyprint.Size(n))
-			bps := prettyprint.Size(float64(n) / duration.Seconds())
-			fmt.Fprintf(tw, "Speed\t%s/s\n", bps)
-		}
-		if err := tw.Flush(); err != nil {
-			return err
-		}
+	if err := eg.Wait(); err != nil {
+		return err
+	}
+
+	if err := resp.Body.Close(); err != nil {
+		return err
+	}
+
+	tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	fmt.Fprintf(tw, "Time\t%s\n", prettyprint.Duration(duration))
+	if n != 0 {
+		fmt.Fprintf(tw, "Content length\t%s\n", prettyprint.Size(n))
+		bps := prettyprint.Size(float64(n) / duration.Seconds())
+		fmt.Fprintf(tw, "Speed\t%s/s\n", bps)
+	}
+	if err := tw.Flush(); err != nil {
+		return err
 	}
 
 	return nil
