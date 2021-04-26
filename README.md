@@ -11,12 +11,12 @@ First install [Go](http://golang.org).
 If you just want to install the binary to your current directory and don't care about the source code, run
 
 ```bash
-GOBIN=$(pwd) GOPATH=/tmp/gobuild go get github.com/carlmjohnson/get-headers
+GOBIN=$(pwd) go install github.com/carlmjohnson/get-headers@latest
 ```
 
 ## Screenshots
 
-```bash
+```
 $ get-headers https://www.example.com
 GET https://www.example.com
 HTTP/1.1 200 OK
@@ -37,7 +37,7 @@ Content length  1.2 KB
 Speed           12.4 KB/s
 ```
 
-```bash
+```
 $ get-headers -gzip http://www.example.com
 GET http://www.example.com
 HTTP/1.1 200 OK
@@ -60,13 +60,15 @@ Content length  606
 Speed           60.9 KB/s
 ```
 
-```bash
+```
 $ get-headers -h
-Usage of get-headers:
+Usage of get-headers v0.21.1:
 
 get-headers [opts] <url>...
         Gets the URLs and prints their headers alphabetically.
         Repeated headers are printed with an asterisk.
+
+Options may be set as GET_HEADERS prefixed environment variables.
 
   -g	Shortcut for -gzip
   -gzip
