@@ -34,7 +34,9 @@ func IPDialer() (*net.Addr, func(ctx context.Context, network, addr string) (net
 	var ip net.Addr
 	return &ip, func(ctx context.Context, network, addr string) (net.Conn, error) {
 		conn, err := net.Dial(network, addr)
-		ip = conn.RemoteAddr()
+		if conn != nil {
+			ip = conn.RemoteAddr()
+		}
 		return conn, err
 	}
 }
@@ -102,7 +104,9 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 	}
 
 	fmt.Println("GET", url)
-	fmt.Println("Via", *ip)
+	if *ip != nil {
+		fmt.Println("Via", *ip)
+	}
 	fmt.Println(resp.Proto, resp.Status)
 	fmt.Println()
 	fmt.Println(prettyprint.ResponseHeader(resp.Header))
