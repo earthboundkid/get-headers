@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -21,12 +22,21 @@ func checkRedirect(req *http.Request, via []*http.Request) error {
 	return http.ErrUseLastResponse
 }
 
-// client for all http requests
+// base client for all http requests
 var client = http.Client{
 	CheckRedirect: checkRedirect,
 	Transport: &http.Transport{
 		DisableCompression: true,
 	},
+}
+
+func IPDialer() (*net.Addr, func(ctx context.Context, network, addr string) (net.Conn, error)) {
+	var ip net.Addr
+	return &ip, func(ctx context.Context, network, addr string) (net.Conn, error) {
+		conn, err := net.Dial(network, addr)
+		ip = conn.RemoteAddr()
+		return conn, err
+	}
 }
 
 // Main takes a list of urls and request parameters, then fetches the URLs and
@@ -66,8 +76,11 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 		req.Header.Add("Cookie", cookie)
 	}
 
+	newClient := client
+	ip, dc := IPDialer()
+	newClient.Transport.(*http.Transport).DialContext = dc
 	start := time.Now()
-	resp, err := client.Do(req)
+	resp, err := newClient.Do(req)
 	duration := time.Since(start)
 
 	if err != nil {
@@ -89,6 +102,7 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 	}
 
 	fmt.Println("GET", url)
+	fmt.Println("Via", *ip)
 	fmt.Println(resp.Proto, resp.Status)
 	fmt.Println()
 	fmt.Println(prettyprint.ResponseHeader(resp.Header))
