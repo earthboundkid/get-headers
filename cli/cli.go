@@ -5,16 +5,20 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"runtime/debug"
 	"strings"
 
+	"github.com/carlmjohnson/flagext"
 	"github.com/carlmjohnson/get-headers/run"
 )
 
-const usage = `Usage of get-headers:
+const usage = `Usage of get-headers %s:
 
 get-headers [opts] <url>...
         Gets the URLs and prints their headers alphabetically.
         Repeated headers are printed with an asterisk.
+
+Options may be set as GET_HEADERS prefixed environment variables.
 
 `
 
@@ -24,28 +28,30 @@ func Run() int {
 	flag.BoolVar(gzip, "g", false, "Shortcut for -gzip")
 	ignoreBody := flag.Bool("ignore-body", false, "Ignore body of request; close connection after gettings the headers")
 	flag.BoolVar(ignoreBody, "i", false, "Shortcut for -ignore-body")
-	etag := flag.String("etag", "", "Set 'If-None-Match' header to etag value")
-	cookie := flag.String("cookie",
-		os.Getenv("GET_HEADERS_COOKIE"),
-		"Set cookie header (overrides GET_HEADERS_COOKIE environmental variable)")
+	etag := ""
+	flag.Func("etag", "Set 'If-None-Match' header to etag value", func(s string) error {
+		// Normalize etag...
+		if !strings.HasPrefix(etag, `"`) {
+			etag = fmt.Sprintf(`"%s"`, etag)
+		}
+		return nil
+	})
+	cookie := flag.String("cookie", "", "Set cookie header")
 	flag.Usage = func() {
-		fmt.Fprint(os.Stderr, usage)
+		version := "(unknown)"
+		if info, ok := debug.ReadBuildInfo(); ok {
+			version = info.Main.Version
+		}
+		fmt.Fprintf(os.Stderr, usage, version)
 		flag.PrintDefaults()
 	}
 
 	flag.Parse()
-	if len(flag.Args()) < 1 {
-		flag.Usage()
-		return 2
-	}
+	flagext.ParseEnv(nil, "get-headers")
+	flagext.MustHaveArgs(nil, 1, -1)
 
-	// Normalize etag...
-	if !strings.HasPrefix(*etag, `"`) {
-		*etag = fmt.Sprintf(`"%s"`, *etag)
-	}
-
-	if err := run.Main(*cookie, *etag, *gzip, *ignoreBody, flag.Args()...); err != nil {
-		fmt.Fprintf(os.Stderr, "get-headers: %v\n", err)
+	if err := run.Main(*cookie, etag, *gzip, *ignoreBody, flag.Args()...); err != nil {
+		fmt.Fprintf(os.Stderr, "get-headers error: %v\n", err)
 		return 1
 	}
 	return 0
