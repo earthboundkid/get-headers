@@ -1,7 +1,6 @@
 package prettyprint
 
 import (
-	"bytes"
 	"fmt"
 	"net/http"
 	"sort"
@@ -23,7 +22,7 @@ func (h ResponseHeader) String() string {
 
 	// Use a tabwriter to pretty print the output to a buffer
 	var (
-		buf bytes.Buffer
+		buf strings.Builder
 		tw  = tabwriter.NewWriter(&buf, 0, 0, 2, ' ', 0)
 	)
 	for _, headerKey := range sortedHeaderKeys {
