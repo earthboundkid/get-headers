@@ -12,9 +12,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"golang.org/x/sync/errgroup"
-
 	"github.com/carlmjohnson/get-headers/prettyprint"
+	"github.com/carlmjohnson/requests"
 )
 
 // Don't follow redirects
@@ -59,71 +58,68 @@ func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
 func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, os.Kill)
 	defer cancel()
-	eg, ctx := errgroup.WithContext(ctx)
 
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return err
-	}
-
+	builder := requests.URL(url)
 	if gzip {
-		req.Header.Add("Accept-Encoding", "gzip, deflate")
+		builder.Header("Accept-Encoding", "gzip, deflate")
 	}
 
 	if etag != "" {
-		req.Header.Add("If-None-Match", etag)
+		builder.Header("If-None-Match", etag)
 	}
 
 	if cookie != "" {
-		req.Header.Add("Cookie", cookie)
+		builder.Header("Cookie", cookie)
 	}
 
 	newClient := client
 	ip, dc := IPDialer()
 	newClient.Transport.(*http.Transport).DialContext = dc
-	start := time.Now()
-	resp, err := newClient.Do(req)
-	duration := time.Since(start)
+	builder.Client(&newClient)
 
-	if err != nil {
-		return err
-	}
-
-	var n int64
-
-	if !ignoreBody {
-		eg.Go(func() error {
-			// Copying to /dev/null just to make sure this is real
-			n, err = io.Copy(io.Discard, resp.Body)
-			duration = time.Since(start)
-			if err != nil {
-				return err
+	var (
+		size             int64
+		start            time.Time
+		duration         time.Duration
+		err              error
+		printheadersDone = make(chan struct{})
+	)
+	builder.AddValidator(func(res *http.Response) error {
+		go func() {
+			fmt.Println("GET", url)
+			if *ip != nil {
+				fmt.Println("Via", *ip)
 			}
+			fmt.Println(res.Proto, res.Status)
+			fmt.Println()
+			fmt.Println(prettyprint.ResponseHeader(res.Header))
+			close(printheadersDone)
+		}()
+		return nil
+	})
+	if ignoreBody {
+		builder.Handle(func(res *http.Response) error {
+			duration = time.Since(start)
 			return nil
+		})
+	} else {
+		builder.Handle(func(res *http.Response) error {
+			size, err = io.Copy(io.Discard, res.Body)
+			duration = time.Since(start)
+			return err
 		})
 	}
 
-	fmt.Println("GET", url)
-	if *ip != nil {
-		fmt.Println("Via", *ip)
-	}
-	fmt.Println(resp.Proto, resp.Status)
-	fmt.Println()
-	fmt.Println(prettyprint.ResponseHeader(resp.Header))
-
-	if err := eg.Wait(); err != nil {
+	start = time.Now()
+	if err = builder.Fetch(ctx); err != nil {
 		return err
 	}
-
-	if err := resp.Body.Close(); err != nil {
-		return err
-	}
-
+	<-printheadersDone
 	tw := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	fmt.Fprintf(tw, "Time\t%s\n", prettyprint.Duration(duration))
-	if n != 0 {
-		fmt.Fprintf(tw, "Content length\t%s\n", prettyprint.Size(n))
-		bps := prettyprint.Size(float64(n) / duration.Seconds())
+	if size != 0 {
+		fmt.Fprintf(tw, "Content length\t%s\n", prettyprint.Size(size))
+		bps := prettyprint.Size(float64(size) / duration.Seconds())
 		fmt.Fprintf(tw, "Speed\t%s/s\n", bps)
 	}
 	if err := tw.Flush(); err != nil {
