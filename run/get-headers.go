@@ -29,15 +29,18 @@ var client = http.Client{
 	},
 }
 
-func IPDialer() (*net.Addr, func(ctx context.Context, network, addr string) (net.Conn, error)) {
+func IPDialer(cl *http.Client) *net.Addr {
 	var ip net.Addr
-	return &ip, func(ctx context.Context, network, addr string) (net.Conn, error) {
+	t := cl.Transport.(*http.Transport)
+	t.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
 		conn, err := net.Dial(network, addr)
 		if conn != nil {
 			ip = conn.RemoteAddr()
 		}
 		return conn, err
 	}
+	t.ForceAttemptHTTP2 = true
+	return &ip
 }
 
 // Main takes a list of urls and request parameters, then fetches the URLs and
@@ -73,8 +76,7 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 	}
 
 	newClient := client
-	ip, dc := IPDialer()
-	newClient.Transport.(*http.Transport).DialContext = dc
+	ip := IPDialer(&newClient)
 	builder.Client(&newClient)
 
 	var (
