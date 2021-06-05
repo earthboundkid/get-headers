@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"text/tabwriter"
 	"time"
 
@@ -63,6 +64,7 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 	defer cancel()
 
 	builder := requests.URL(url)
+	builder.UserAgent(getUserAgent())
 	if gzip {
 		builder.Header("Accept-Encoding", "gzip, deflate")
 	}
@@ -129,4 +131,18 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 	}
 
 	return nil
+}
+
+var userAgent string
+
+func getUserAgent() string {
+	if userAgent != "" {
+		return userAgent
+	}
+	version := "(unknown)"
+	if info, ok := debug.ReadBuildInfo(); ok {
+		version = info.Main.Version
+	}
+	userAgent = fmt.Sprintf("get-headers/%s", version)
+	return userAgent
 }
