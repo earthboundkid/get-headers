@@ -1,4 +1,4 @@
-# get-headers [![GoDoc](https://godoc.org/github.com/carlmjohnson/get-headers?status.svg)](https://godoc.org/github.com/carlmjohnson/get-headers) [![Go Report Card](https://goreportcard.com/badge/github.com/carlmjohnson/get-headers)](https://goreportcard.com/report/github.com/carlmjohnson/get-headers) [![Codeship Status for carlmjohnson/get-headers](https://codeship.com/projects/c1f6a8b0-1f7e-0134-4bf7-42de186da15e/status?branch=master)](https://codeship.com/projects/160370)
+# get-headers [![GoDoc](https://godoc.org/github.com/carlmjohnson/get-headers?status.svg)](https://godoc.org/github.com/carlmjohnson/get-headers) [![Go Report Card](https://goreportcard.com/badge/github.com/carlmjohnson/get-headers)](https://goreportcard.com/report/github.com/carlmjohnson/get-headers)
 
 Simple tool to show the headers from GET-ing a URL
 
