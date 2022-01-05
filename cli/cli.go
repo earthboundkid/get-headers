@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/carlmjohnson/exitcode"
 	"github.com/carlmjohnson/flagext"
 	"github.com/carlmjohnson/get-headers/run"
 	"github.com/carlmjohnson/versioninfo"
@@ -46,9 +47,5 @@ func Run() int {
 	flagext.ParseEnv(nil, "get-headers")
 	flagext.MustHaveArgs(nil, 1, -1)
 
-	if err := run.Main(*cookie, etag, *gzip, *ignoreBody, flag.Args()...); err != nil {
-		fmt.Fprintf(os.Stderr, "get-headers error: %v\n", err)
-		return 1
-	}
-	return 0
+	return exitcode.Get(run.Main(*cookie, etag, *gzip, *ignoreBody, flag.Args()...))
 }

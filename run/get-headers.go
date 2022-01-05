@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/carlmjohnson/errutil"
 	"github.com/carlmjohnson/get-headers/prettyprint"
 	"github.com/carlmjohnson/requests"
 	"github.com/carlmjohnson/versioninfo"
@@ -40,16 +41,18 @@ func IPDialer() (*net.Addr, *http.Client) {
 // Main takes a list of urls and request parameters, then fetches the URLs and
 // outputs the headers to stdout
 func Main(cookie, etag string, gzip, ignoreBody bool, urls ...string) error {
+	var errs errutil.Slice
 	for i, url := range urls {
 		// Separate subsequent lookups with newline
 		if i > 0 {
 			fmt.Println()
 		}
 		if err := getHeaders(cookie, etag, gzip, ignoreBody, url); err != nil {
-			return err
+			fmt.Fprintf(os.Stderr, "get-headers error: %v\n", err)
+			errs.Push(err)
 		}
 	}
-	return nil
+	return errs.Merge()
 }
 
 func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
