@@ -17,17 +17,12 @@ import (
 	"github.com/carlmjohnson/versioninfo"
 )
 
-// base client for all http requests
-var client = http.Client{
-	CheckRedirect: requests.NoFollow,
-	Transport: &http.Transport{
-		DisableCompression: true,
-	},
-}
-
-func IPDialer(cl *http.Client) *net.Addr {
+func IPDialer() (*net.Addr, *http.Client) {
 	var ip net.Addr
-	t := cl.Transport.(*http.Transport)
+	t := &http.Transport{
+		DisableCompression: true,
+		ForceAttemptHTTP2:  true,
+	}
 	t.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
 		conn, err := net.Dial(network, addr)
 		if conn != nil {
@@ -35,8 +30,11 @@ func IPDialer(cl *http.Client) *net.Addr {
 		}
 		return conn, err
 	}
-	t.ForceAttemptHTTP2 = true
-	return &ip
+	cl := &http.Client{
+		CheckRedirect: requests.NoFollow,
+		Transport:     t,
+	}
+	return &ip, cl
 }
 
 // Main takes a list of urls and request parameters, then fetches the URLs and
@@ -72,9 +70,8 @@ func getHeaders(cookie, etag string, gzip, ignoreBody bool, url string) error {
 		builder.Header("Cookie", cookie)
 	}
 
-	newClient := client
-	ip := IPDialer(&newClient)
-	builder.Client(&newClient)
+	ip, newClient := IPDialer()
+	builder.Client(newClient)
 
 	var (
 		size             int64
