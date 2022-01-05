@@ -17,14 +17,9 @@ import (
 	"github.com/carlmjohnson/requests"
 )
 
-// Don't follow redirects
-func checkRedirect(req *http.Request, via []*http.Request) error {
-	return http.ErrUseLastResponse
-}
-
 // base client for all http requests
 var client = http.Client{
-	CheckRedirect: checkRedirect,
+	CheckRedirect: requests.NoFollow,
 	Transport: &http.Transport{
 		DisableCompression: true,
 	},
