@@ -5,11 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime/debug"
 	"strings"
 
 	"github.com/carlmjohnson/flagext"
 	"github.com/carlmjohnson/get-headers/run"
+	"github.com/carlmjohnson/versioninfo"
 )
 
 const usage = `Usage of get-headers %s:
@@ -38,11 +38,7 @@ func Run() int {
 	})
 	cookie := flag.String("cookie", "", "Set cookie header")
 	flag.Usage = func() {
-		version := "(unknown)"
-		if info, ok := debug.ReadBuildInfo(); ok {
-			version = info.Main.Version
-		}
-		fmt.Fprintf(os.Stderr, usage, version)
+		fmt.Fprintf(os.Stderr, usage, versioninfo.Version)
 		flag.PrintDefaults()
 	}
 

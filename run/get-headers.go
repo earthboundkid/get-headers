@@ -9,12 +9,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"runtime/debug"
 	"text/tabwriter"
 	"time"
 
 	"github.com/carlmjohnson/get-headers/prettyprint"
 	"github.com/carlmjohnson/requests"
+	"github.com/carlmjohnson/versioninfo"
 )
 
 // base client for all http requests
@@ -134,10 +134,6 @@ func getUserAgent() string {
 	if userAgent != "" {
 		return userAgent
 	}
-	version := "(unknown)"
-	if info, ok := debug.ReadBuildInfo(); ok {
-		version = info.Main.Version
-	}
-	userAgent = fmt.Sprintf("get-headers/%s", version)
+	userAgent = fmt.Sprintf("get-headers/%s", versioninfo.Version)
 	return userAgent
 }
