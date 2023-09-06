@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/carlmjohnson/exitcode"
-	"github.com/carlmjohnson/flagext"
+	"github.com/carlmjohnson/flagx"
 	"github.com/carlmjohnson/get-headers/run"
 	"github.com/carlmjohnson/versioninfo"
 )
@@ -38,14 +38,15 @@ func Run() int {
 		return nil
 	})
 	cookie := flag.String("cookie", "", "Set cookie header")
+	versioninfo.AddFlag(nil)
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, usage, versioninfo.Version)
 		flag.PrintDefaults()
 	}
 
 	flag.Parse()
-	flagext.ParseEnv(nil, "get-headers")
-	flagext.MustHaveArgs(nil, 1, -1)
+	flagx.ParseEnv(nil, "get-headers")
+	flagx.MustHaveArgs(nil, 1, -1)
 
 	return exitcode.Get(run.Main(*cookie, etag, *gzip, *ignoreBody, flag.Args()...))
 }
