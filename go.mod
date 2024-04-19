@@ -7,10 +7,10 @@ require (
 	github.com/carlmjohnson/flagx v0.22.2
 	github.com/carlmjohnson/requests v0.23.4
 	github.com/carlmjohnson/versioninfo v0.22.5
-	golang.org/x/term v0.13.0
+	golang.org/x/term v0.18.0
 )
 
 require (
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 )
