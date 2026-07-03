@@ -1,17 +1,16 @@
 module github.com/carlmjohnson/get-headers
 
-go 1.21
-toolchain go1.24.1
+go 1.25.0
 
 require (
 	github.com/carlmjohnson/exitcode v0.20.2
 	github.com/carlmjohnson/flagx v0.22.2
 	github.com/carlmjohnson/requests v0.23.4
 	github.com/carlmjohnson/versioninfo v0.22.5
-	golang.org/x/term v0.30.0
+	golang.org/x/term v0.43.0
 )
 
 require (
-	golang.org/x/net v0.38.0 // indirect
-	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 )
